@@ -9,6 +9,23 @@ import (
 	"strings"
 )
 
+func calcMul(match []byte) int{
+    matchStr := string(match)
+    workStr := strings.Replace(matchStr, "mul(", "", 1)
+    workStr = strings.Replace(workStr, ")", "", 1)
+    values := strings.SplitN(workStr, ",", 2)
+    value1, err := strconv.Atoi(values[0])
+    if err != nil {
+        log.Fatal("HEY CANT CONVERT:", values[0])
+    }
+    value2, err := strconv.Atoi(values[1])
+    if err != nil {
+        log.Fatal("HEY CANT CONVERT:", values[1])
+    }
+    newVal := value1 * value2
+    return newVal
+}
+
 func main() {
 	data, err := os.ReadFile("input.txt")
         if err != nil {
@@ -25,19 +42,7 @@ func main() {
         fmt.Println(dontSlice)
         totalMul := 0
         for _, match := range(foundSlice){
-            matchStr := string(match)
-            workStr := strings.Replace(matchStr, "mul(", "", 1)
-            workStr = strings.Replace(workStr, ")", "", 1)
-            values := strings.SplitN(workStr, ",", 2)
-            value1, err := strconv.Atoi(values[0])
-            if err != nil {
-                log.Fatal("HEY CANT CONVERT:", values[0])
-            }
-            value2, err := strconv.Atoi(values[1])
-            if err != nil {
-                log.Fatal("HEY CANT CONVERT:", values[1])
-            }
-            newVal := value1 * value2
+            newVal := calcMul(match)
             totalMul += newVal
         }
         fmt.Println(totalMul)
