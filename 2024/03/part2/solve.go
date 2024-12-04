@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -26,6 +27,48 @@ func calcMul(match []byte) int{
     return newVal
 }
 
+func doOrDont(locVal int, instMap map[int]string, sortedKeys []int) bool {
+    lastVal := 0
+    for _, key := range(sortedKeys){
+        if key > locVal && lastVal != 0{
+            if instMap[lastVal] == "do" {
+                return true
+            } else {
+                return false
+            }
+        } else if key < locVal {
+            lastVal = key
+        } else if key > locVal && lastVal == 0 {
+            return true
+        }
+    }
+    return false
+}
+
+func sortMapKeys(inMap map[int]string) []int{
+    var returnSlice []int
+    for key := range(inMap) {
+        returnSlice = append(returnSlice, key)
+    }
+    slices.Sort(returnSlice)
+    return returnSlice
+}
+
+func processMuls(mulSlice [][]int, dataSlice [][]byte, instMap map[int]string) int {
+    totalValue := 0
+    sortedMapKeys := sortMapKeys(instMap)
+    for key, val := range(instMap) {
+        fmt.Println(key, " - ", val)
+    }
+    for index, value := range(mulSlice) {
+        fmt.Println(value[0])
+        if doOrDont(value[0], instMap, sortedMapKeys) == true {
+            totalValue += calcMul(dataSlice[index])
+        }
+    }
+    return totalValue
+}
+
 func main() {
 	data, err := os.ReadFile("input.txt")
         if err != nil {
@@ -33,17 +76,18 @@ func main() {
 	}
         mulMatch := regexp.MustCompile(`mul\(\d{1,3},\d{1,3}\)`)
         foundSlice := mulMatch.FindAll(data, -1)
-        // indexSlice := mulMatch.FindAllIndex(data,-1)
+        indexSlice := mulMatch.FindAllIndex(data,-1)
+        var instructionMap = make(map[int]string)
         doMatch := regexp.MustCompile(`do\(\)`)
         doSlice := doMatch.FindAllIndex(data, -1)
-        fmt.Println(doSlice)
         dontMatch := regexp.MustCompile(`don\'t\(\)`)
         dontSlice := dontMatch.FindAllIndex(data, -1)
-        fmt.Println(dontSlice)
-        totalMul := 0
-        for _, match := range(foundSlice){
-            newVal := calcMul(match)
-            totalMul += newVal
+        for _, item := range(doSlice) {
+            instructionMap[item[0]] = "do"
         }
-        fmt.Println(totalMul)
+        for _, item := range(dontSlice) {
+            instructionMap[item[0]] = "dont"
+        }
+        totalValue := processMuls(indexSlice, foundSlice, instructionMap)
+        fmt.Println(totalValue)
 }
