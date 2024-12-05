@@ -94,8 +94,12 @@ func intifyStringSlice(inSlice []string) [][]int{
 func getMiddleValue(inSlice []int) int {
     lenNum := len(inSlice)
     halfLen := lenNum/2
-    fmt.Printf("%d - %d\n", lenNum, halfLen)
     return inSlice[halfLen]
+}
+
+func fixUpdateandGetMiddle(inUpdate []int, rulesMap map[int]Rule) int {
+    returnval := 0
+    return returnval
 }
 
 func main(){
@@ -121,11 +125,15 @@ func main(){
     }
     updateIntSlice := intifyStringSlice(updateSlice)
     ruleMap := parseRules(ruleSlice)
-    var resultCount int
+    var badUpdates [][]int
     for _, update := range(updateIntSlice){
-        if validateUpdate(update, ruleMap) == 1 {
-            resultCount += getMiddleValue(update)
+        if validateUpdate(update, ruleMap) == 0 {
+            badUpdates = append(badUpdates, update)
         }
+    }
+    var resultCount int
+    for _, update := range(badUpdates){
+        resultCount += fixUpdateandGetMiddle(update, ruleMap)
     }
     fmt.Println(resultCount)
 }
