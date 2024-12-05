@@ -10,7 +10,6 @@ import (
 )
 
 type Rule struct {
-    number int
     before []int
     after []int
 }
@@ -18,12 +17,6 @@ type Rule struct {
 func conditionalAppend(before int, after int, dataMap map[int]Rule){
     modifyBefore := dataMap[before]
     modifyAfter := dataMap[after]
-    if modifyBefore.number == 0 {
-        modifyBefore.number = before
-    }
-    if modifyAfter.number == 0 {
-        modifyAfter.number = after
-    }
     if !slices.Contains(modifyBefore.before, after){
         modifyBefore.before = append(modifyBefore.before, after)
     }
@@ -97,9 +90,42 @@ func getMiddleValue(inSlice []int) int {
     return inSlice[halfLen]
 }
 
+type SortStat struct {
+    beforeScore int
+    afterScore int
+}
+
+func fixUpdate(update []int, ruleMap map[int]Rule) []int {
+    returnUpdate := make([]int, len(update))
+    statsMap := make(map[int]SortStat)
+    for thisInd, value := range(update){
+        for checkInd, checkValue := range(update){
+            if thisInd == checkInd {
+                continue
+            } else if slices.Contains(ruleMap[value].after, checkValue) == true {
+                changeStat := statsMap[value]
+                changeStat.afterScore++
+                statsMap[value] = changeStat
+            } else if slices.Contains(ruleMap[value].before, checkValue) == true {
+                changeStat := statsMap[value]
+                changeStat.beforeScore++
+                statsMap[value] = changeStat
+            }
+        }
+    }
+    for ind := range(returnUpdate){
+        for key, value := range(statsMap) {
+            if value.beforeScore == ind {
+                returnUpdate[ind] = key
+            }
+        }
+    }
+    return returnUpdate
+}
+
 func fixUpdateandGetMiddle(inUpdate []int, rulesMap map[int]Rule) int {
-    returnval := 0
-    return returnval
+    fixedUpdate := fixUpdate(inUpdate, rulesMap)
+    return getMiddleValue(fixedUpdate)
 }
 
 func main(){
