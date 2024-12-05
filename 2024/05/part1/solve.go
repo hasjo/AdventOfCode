@@ -91,6 +91,13 @@ func intifyStringSlice(inSlice []string) [][]int{
     return outSlice
 }
 
+func getMiddleValue(inSlice []int) int {
+    lenNum := len(inSlice)
+    halfLen := lenNum/2
+    fmt.Printf("%d - %d\n", lenNum, halfLen)
+    return inSlice[halfLen]
+}
+
 func main(){
     data, err := os.ReadFile("input.txt")
     if err != nil {
@@ -116,7 +123,9 @@ func main(){
     ruleMap := parseRules(ruleSlice)
     var resultCount int
     for _, update := range(updateIntSlice){
-        resultCount += validateUpdate(update, ruleMap)
+        if validateUpdate(update, ruleMap) == 1 {
+            resultCount += getMiddleValue(update)
+        }
     }
     fmt.Println(resultCount)
 }
